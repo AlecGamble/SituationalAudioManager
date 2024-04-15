@@ -6,8 +6,24 @@
 ## SavedVariables: SituationalAudioManager_Database
 ## OptionalDependencies: Ace3
 
+## X-Embeds: Ace3 
+
 #@no-lib-strip@
 embeds.xml
 #@end-no-lib-strip@
 
+# Core
 SituationalAudioManager.lua
+Config.lua
+
+# AudioProfileManager
+AudioProfileManager\AudioProfileManager.lua
+AudioProfileManager\Default.lua
+AudioProfileManager\Cutscene.lua
+AudioProfileManager\Raid.lua
+AudioProfileManager\Dungeon.lua
+AudioProfileManager\Battlegrounds.lua
+AudioProfileManager\Arena.lua
+AudioProfileManager\Voiceover.lua
+# AudioProfileManager\Custom.lua
+AudioProfileManager\Config.lua
