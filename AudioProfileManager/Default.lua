@@ -35,7 +35,7 @@ DefaultVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.defaultVolumeSettings.masterVolume = v
-                AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                AudioProfileManager:RefreshConfig()
             end,
         },
         musicVolume = {
@@ -51,7 +51,7 @@ DefaultVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.defaultVolumeSettings.musicVolume = v
-                AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                AudioProfileManager:RefreshConfig()
             end,
         },
         sfxVolume = {
@@ -67,7 +67,7 @@ DefaultVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.defaultVolumeSettings.sfxVolume = v
-                AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                AudioProfileManager:RefreshConfig()
             end,
         },
         ambienceVolume = {
@@ -83,7 +83,7 @@ DefaultVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.defaultVolumeSettings.ambienceVolume = v
-                AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                AudioProfileManager:RefreshConfig()
             end,
         },
         dialogVolume = {
@@ -99,7 +99,7 @@ DefaultVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.defaultVolumeSettings.dialogVolume = v
-                AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                AudioProfileManager:RefreshConfig()
             end,
         },
     }
