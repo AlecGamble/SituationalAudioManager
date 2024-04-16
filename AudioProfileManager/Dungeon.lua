@@ -5,12 +5,11 @@ local AudioProfileManager = SAM:GetModule("AudioProfileManager")
 local DungeonVolumeController = AudioProfileManager:NewModule("DungeonVolumeController", "AceEvent-3.0")
 
 DungeonVolumeController.name = "Dungeon"
-DungeonVolumeController.priority = 10
+DungeonVolumeController.instanceName = "party"
 
 DungeonVolumeController.configOptions = {
-    name = "",
+    name = "Dungeon",
     type = 'group',
-    inline = true,
     disabled = function() return SAM.db.profile.overrides[DungeonVolumeController.name] == nil or SAM.db.profile.overrides[DungeonVolumeController.name].active == false end,
     hidden = function() return SAM.db.profile.overrides[DungeonVolumeController.name] == nil or SAM.db.profile.overrides[DungeonVolumeController.name].active == false end,
     args = {
@@ -37,9 +36,7 @@ DungeonVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.overrides[DungeonVolumeController.name].masterVolume = v
-                if AudioProfileManager.ActiveVolumeController == DungeonVolumeController then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                AudioProfileManager:RefreshConfig()
             end,
         },
         musicVolume = {
@@ -55,9 +52,7 @@ DungeonVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.overrides[DungeonVolumeController.name].musicVolume = v
-                if AudioProfileManager.ActiveVolumeController == DungeonVolumeController then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                AudioProfileManager:RefreshConfig()
             end,
         },
         sfxVolume = {
@@ -73,9 +68,7 @@ DungeonVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.overrides[DungeonVolumeController.name].sfxVolume = v
-                if AudioProfileManager.ActiveVolumeController == DungeonVolumeController then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                AudioProfileManager:RefreshConfig()
             end,
         },
         ambienceVolume = {
@@ -91,9 +84,7 @@ DungeonVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.overrides[DungeonVolumeController.name].ambienceVolume = v
-                if AudioProfileManager.ActiveVolumeController == DungeonVolumeController then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                AudioProfileManager:RefreshConfig()
             end,
         },
         dialogVolume = {
@@ -109,16 +100,14 @@ DungeonVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.overrides[DungeonVolumeController.name].dialogVolume = v
-                if AudioProfileManager.ActiveVolumeController == DungeonVolumeController then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                AudioProfileManager:RefreshConfig()
             end,
         }
     }
 }
 
 function DungeonVolumeController:InitializeDefaultValues()
-    SAM.db.profile.overrides[DungeonVolumeController.name] = {
+    SAM.db.profile.overrides[self.name] = {
         masterVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MasterVolume)),
         musicVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MusicVolume)),
         sfxVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_SfxVolume)),
@@ -129,50 +118,52 @@ function DungeonVolumeController:InitializeDefaultValues()
 end
 
 function DungeonVolumeController:ValidateSettings()
-    if not SAM.db.profile.overrides[DungeonVolumeController.name] then
-        DungeonVolumeController:InitializeDefaultValues()
+    if not SAM.db.profile.overrides[self.name] then
+        self:InitializeDefaultValues()
     end 
 
-    SAM.db.profile.overrides[DungeonVolumeController.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[DungeonVolumeController.name].masterVolume))
-    SAM.db.profile.overrides[DungeonVolumeController.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[DungeonVolumeController.name].musicVolume))
-    SAM.db.profile.overrides[DungeonVolumeController.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[DungeonVolumeController.name].sfxVolume))
-    SAM.db.profile.overrides[DungeonVolumeController.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[DungeonVolumeController.name].ambienceVolume))
-    SAM.db.profile.overrides[DungeonVolumeController.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[DungeonVolumeController.name].dialogVolume))
+    SAM.db.profile.overrides[self.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[self.name].masterVolume))
+    SAM.db.profile.overrides[self.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[self.name].musicVolume))
+    SAM.db.profile.overrides[self.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[self.name].sfxVolume))
+    SAM.db.profile.overrides[self.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[self.name].ambienceVolume))
+    SAM.db.profile.overrides[self.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[self.name].dialogVolume))
 end
 
 function DungeonVolumeController:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[DungeonVolumeController.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[DungeonVolumeController.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[DungeonVolumeController.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[DungeonVolumeController.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[DungeonVolumeController.name].dialogVolume)
-end
-
-function DungeonVolumeController:ShouldBeActive(eventName)
-    local inInstance, instanceType = IsInInstance()
-
-    if not inInstance then
-        return false
-    end
-
-    if eventName == "PLAYER_ENTERING_WORLD" or eventName == "CINEMATIC_STOP" or eventName == "TALKINGHEAD_CLOSE" or eventName == "ADDON_UPDATE" then
-        if instanceType == "party" then
-            return true
-        end
-    end
-
-    return false
+    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
 end
 
 function DungeonVolumeController:Subscribe()
-    DungeonVolumeController:RegisterEvent("PLAYER_ENTERING_WORLD", DungeonVolumeController.Test)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, DungeonVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, DungeonVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, DungeonVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStop, DungeonVolumeController.OnEnterWorld)
+    self:RegisterMessage(AudioProfileManager.KEY_Event_AddonRequest, DungeonVolumeController.OnEnterWorld)
 end
 
 function DungeonVolumeController:Unsubscribe()
-    DungeonVolumeController:UnregisterEvent("PLAYER_ENTERING_WORLD", DungeonVolumeController.Test)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStop)
+    self:UnregisterMessage(AudioProfileManager.KEY_Event_AddonRequest)
 end
 
-function DungeonVolumeController.Test(event)
+function DungeonVolumeController.OnEnterWorld()
+    -- being in a dungeon should not override cutscenes or talking heads
+    if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
+
+    local inInstance, instanceType = IsInInstance()
+
+    if not inInstance then return end
+
+    if instanceType == "party" then
+        DungeonVolumeController:ApplyAudioSettings()
+    end
 end
 
 AudioProfileManager:RegisterOverride(DungeonVolumeController)

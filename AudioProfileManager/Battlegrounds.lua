@@ -4,16 +4,14 @@ local SAM = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local AudioProfileManager = SAM:GetModule("AudioProfileManager")
 local BattlegroundsVolumeController = AudioProfileManager:NewModule("BattlegroundsVolumeController", "AceEvent-3.0")
 
-local override = {}
+BattlegroundsVolumeController.name = "Battlegrounds"
+BattlegroundsVolumeController.instanceName = "pvp"
 
-override.name = "Battlegrounds"
-
-override.configOptions = {
-    name = "",
+BattlegroundsVolumeController.configOptions = {
+    name = "Battlegrounds",
     type = 'group',
-    inline = true,
-    disabled = function() return SAM.db.profile.overrides[override.name] == nil or SAM.db.profile.overrides[override.name].active == false end,
-    hidden = function() return SAM.db.profile.overrides[override.name] == nil or SAM.db.profile.overrides[override.name].active == false end,
+    disabled = function() return SAM.db.profile.overrides[BattlegroundsVolumeController.name] == nil or SAM.db.profile.overrides[BattlegroundsVolumeController.name].active == false end,
+    hidden = function() return SAM.db.profile.overrides[BattlegroundsVolumeController.name] == nil or SAM.db.profile.overrides[BattlegroundsVolumeController.name].active == false end,
     args = {
         header = {
             name = "Battlegrounds Volume Settings",
@@ -34,10 +32,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].masterVolume
+                return SAM.db.profile.overrides[BattlegroundsVolumeController.name].masterVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].masterVolume = v
+                SAM.db.profile.overrides[BattlegroundsVolumeController.name].masterVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         musicVolume = {
@@ -49,10 +48,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].musicVolume
+                return SAM.db.profile.overrides[BattlegroundsVolumeController.name].musicVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].musicVolume = v
+                SAM.db.profile.overrides[BattlegroundsVolumeController.name].musicVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         sfxVolume = {
@@ -64,10 +64,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].sfxVolume
+                return SAM.db.profile.overrides[BattlegroundsVolumeController.name].sfxVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].sfxVolume = v
+                SAM.db.profile.overrides[BattlegroundsVolumeController.name].sfxVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         ambienceVolume = {
@@ -79,10 +80,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].ambienceVolume
+                return SAM.db.profile.overrides[BattlegroundsVolumeController.name].ambienceVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].ambienceVolume = v
+                SAM.db.profile.overrides[BattlegroundsVolumeController.name].ambienceVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         dialogVolume = {
@@ -94,17 +96,18 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].dialogVolume
+                return SAM.db.profile.overrides[BattlegroundsVolumeController.name].dialogVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].dialogVolume = v
+                SAM.db.profile.overrides[BattlegroundsVolumeController.name].dialogVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         }
     }
 }
 
-function override:InitializeDefaultValues()
-    SAM.db.profile.overrides[override.name] = {
+function BattlegroundsVolumeController:InitializeDefaultValues()
+    SAM.db.profile.overrides[self.name] = {
         masterVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MasterVolume)),
         musicVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MusicVolume)),
         sfxVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_SfxVolume)),
@@ -114,49 +117,53 @@ function override:InitializeDefaultValues()
     }
 end
 
-function override:ValidateSettings()
-    if not SAM.db.profile.overrides[override.name] then
-        override:InitializeDefaultValues()
+function BattlegroundsVolumeController:ValidateSettings()
+    if not SAM.db.profile.overrides[self.name] then
+        self:InitializeDefaultValues()
     end 
 
-    SAM.db.profile.overrides[override.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[override.name].masterVolume))
-    SAM.db.profile.overrides[override.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[override.name].musicVolume))
-    SAM.db.profile.overrides[override.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[override.name].sfxVolume))
-    SAM.db.profile.overrides[override.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[override.name].ambienceVolume))
-    SAM.db.profile.overrides[override.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[override.name].dialogVolume))
+    SAM.db.profile.overrides[self.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[self.name].masterVolume))
+    SAM.db.profile.overrides[self.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[self.name].musicVolume))
+    SAM.db.profile.overrides[self.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[self.name].sfxVolume))
+    SAM.db.profile.overrides[self.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[self.name].ambienceVolume))
+    SAM.db.profile.overrides[self.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[self.name].dialogVolume))
 end
 
-function override:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[override.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[override.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[override.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[override.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[override.name].dialogVolume)
+function BattlegroundsVolumeController:ApplyAudioSettings()
+    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
 end
 
+function BattlegroundsVolumeController:Subscribe()
+    self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, BattlegroundsVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, BattlegroundsVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, BattlegroundsVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStop, BattlegroundsVolumeController.OnEnterWorld)
+    self:RegisterMessage(AudioProfileManager.KEY_Event_AddonRequest, BattlegroundsVolumeController.OnEnterWorld)
+end
 
-function override:ShouldBeActive(eventName)
+function BattlegroundsVolumeController:Unsubscribe()
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStop)
+    self:UnregisterMessage(AudioProfileManager.KEY_Event_AddonRequest)
+end
+
+function BattlegroundsVolumeController.OnEnterWorld()
+    -- being in a battleground should not override cutscenes or talking heads
+    if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
+
     local inInstance, instanceType = IsInInstance()
 
-    if not inInstance then
-        return false
-    end
+    if not inInstance then return end
 
-    if  (eventName == "PLAYER_ENTERING_WORLD") or 
-        (eventName == "CINEMATIC_STOP" and SAM.db.profile.overrides.cutscene == true) or 
-        (eventName == "TALKINGHEAD_CLOSE" and SAM.db.profile.overrides.voiceover == true) or 
-        (eventName == "ADDON_UPDATE")
-    then
-        if instanceType == "pvp" then
-            return true
-        end
+    if instanceType == "pvp" then
+        DungeonVolumeController:ApplyAudioSettings()
     end
 end
 
-function override:Subscribe()
-end
-
-function override:Unsubscribe()
-end
-
-AudioProfileManager:RegisterOverride(override)
+AudioProfileManager:RegisterOverride(BattlegroundsVolumeController)

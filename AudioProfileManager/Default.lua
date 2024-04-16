@@ -136,4 +136,33 @@ function DefaultVolumeController:ApplyAudioSettings()
     SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.defaultVolumeSettings.dialogVolume)
 end
 
+function DefaultVolumeController:Subscribe()
+    self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, DefaultVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, DefaultVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, DefaultVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStop, DefaultVolumeController.OnEnterWorld)
+    self:RegisterMessage(AudioProfileManager.KEY_Event_AddonRequest, DefaultVolumeController.OnEnterWorld)
+end
+
+function DefaultVolumeController:Unsubscribe()
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStop)
+    self:UnregisterMessage(AudioProfileManager.KEY_Event_AddonRequest)
+end
+
+function DefaultVolumeController.OnEnterWorld()
+    -- default volume controller should not override cutscenes or talking heads
+    if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
+
+    local inInstance, instanceType = IsInInstance()
+
+    -- TODO:
+    -- not technically correct. If there is no override for the specific instance the default volume controller should be used in sed instance.
+    if not inInstance then
+        DefaultVolumeController:ApplyAudioSettings()
+    end
+end
+
 AudioProfileManager.DefaultAudioProfile = DefaultVolumeController

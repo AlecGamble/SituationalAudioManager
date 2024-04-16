@@ -4,16 +4,13 @@ local SAM = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local AudioProfileManager = SAM:GetModule("AudioProfileManager")
 local VoiceoverVolumeController = AudioProfileManager:NewModule("VoiceoverVolumeController", "AceEvent-3.0")
 
-local override = {}
+VoiceoverVolumeController.name = "Voiceover"
 
-override.name = "Voiceover"
-
-override.configOptions = {
-    name = "",
+VoiceoverVolumeController.configOptions = {
+    name = "Voiceover",
     type = 'group',
-    inline = true,
-    disabled = function() return SAM.db.profile.overrides[override.name] == nil or SAM.db.profile.overrides[override.name].active == false end,
-    hidden = function() return SAM.db.profile.overrides[override.name] == nil or SAM.db.profile.overrides[override.name].active == false end,
+    disabled = function() return SAM.db.profile.overrides[VoiceoverVolumeController.name] == nil or SAM.db.profile.overrides[VoiceoverVolumeController.name].active == false end,
+    hidden = function() return SAM.db.profile.overrides[VoiceoverVolumeController.name] == nil or SAM.db.profile.overrides[VoiceoverVolumeController.name].active == false end,
     args = {
         header = {
             name = "Voiceover Volume Settings",
@@ -34,13 +31,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].masterVolume
+                return SAM.db.profile.overrides[VoiceoverVolumeController.name].masterVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].masterVolume = v
-                if AudioProfileManager.ActiveVolumeController == override then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                SAM.db.profile.overrides[VoiceoverVolumeController.name].masterVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         musicVolume = {
@@ -52,13 +47,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].musicVolume
+                return SAM.db.profile.overrides[VoiceoverVolumeController.name].musicVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].musicVolume = v
-                if AudioProfileManager.ActiveVolumeController == override then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                SAM.db.profile.overrides[VoiceoverVolumeController.name].musicVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         sfxVolume = {
@@ -70,13 +63,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].sfxVolume
+                return SAM.db.profile.overrides[VoiceoverVolumeController.name].sfxVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].sfxVolume = v
-                if AudioProfileManager.ActiveVolumeController == override then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                SAM.db.profile.overrides[VoiceoverVolumeController.name].sfxVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         ambienceVolume = {
@@ -88,13 +79,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].ambienceVolume
+                return SAM.db.profile.overrides[VoiceoverVolumeController.name].ambienceVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].ambienceVolume = v
-                if AudioProfileManager.ActiveVolumeController == override then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                SAM.db.profile.overrides[VoiceoverVolumeController.name].ambienceVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         dialogVolume = {
@@ -106,20 +95,18 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].dialogVolume
+                return SAM.db.profile.overrides[VoiceoverVolumeController.name].dialogVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].dialogVolume = v
-                if AudioProfileManager.ActiveVolumeController == override then
-                    AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
-                end
+                SAM.db.profile.overrides[VoiceoverVolumeController.name].dialogVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         }
     }
 }
 
-function override:InitializeDefaultValues()
-    SAM.db.profile.overrides[override.name] = {
+function VoiceoverVolumeController:InitializeDefaultValues()
+    SAM.db.profile.overrides[self.name] = {
         masterVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MasterVolume)),
         musicVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MusicVolume)),
         sfxVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_SfxVolume)),
@@ -129,39 +116,49 @@ function override:InitializeDefaultValues()
     }
 end
 
-function override:ValidateSettings()
-    if not SAM.db.profile.overrides[override.name] then
+function VoiceoverVolumeController:ValidateSettings()
+    if not SAM.db.profile.overrides[self.name] then
         override:InitializeDefaultValues()
     end 
 
-    SAM.db.profile.overrides[override.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[override.name].masterVolume))
-    SAM.db.profile.overrides[override.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[override.name].musicVolume))
-    SAM.db.profile.overrides[override.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[override.name].sfxVolume))
-    SAM.db.profile.overrides[override.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[override.name].ambienceVolume))
-    SAM.db.profile.overrides[override.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[override.name].dialogVolume))
+    SAM.db.profile.overrides[self.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[self.name].masterVolume))
+    SAM.db.profile.overrides[self.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[self.name].musicVolume))
+    SAM.db.profile.overrides[self.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[self.name].sfxVolume))
+    SAM.db.profile.overrides[self.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[self.name].ambienceVolume))
+    SAM.db.profile.overrides[self.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[self.name].dialogVolume))
 end
 
-function override:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[override.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[override.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[override.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[override.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[override.name].dialogVolume)
+function VoiceoverVolumeController:ApplyAudioSettings()
+    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
+    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
 end
 
-function RegisterListeners()
+function VoiceoverVolumeController:Subscribe()
+    self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStart, VoiceoverVolumeController.OnVoiceoverStart)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, VoiceoverVolumeController.OnVoiceoverStop)
 end
 
-function UnregisterListeners()
+function VoiceoverVolumeController:Unsubscribe()
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStart)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
 end
 
-function override:ShouldBeActive(eventName)
-    
-    if eventName == "TALKINGHEAD_REQUESTED" then
-        return true
+function VoiceoverVolumeController.OnVoiceoverStart()
+    AudioProfileManager.Flags.InVoiceover = true
+    VoiceoverVolumeController:ApplyAudioSettings()
+end
+
+function VoiceoverVolumeController.OnVoiceoverStop()
+end
+
+function VoiceoverVolumeController.UpdateEvent(event)
+    if eventName == AudioProfileManager.KEY_Event_VoiceoverStart then
+    elseif eventName == AudioProfileManager.KEY_Event_VoiceoverStop or eventName == AudioProfileManager.KEY_Event_MovieStop then
+        AudioProfileManager.Flags.InVoiceover = false
     end
-
-    return false
 end
 
-AudioProfileManager:RegisterOverride(override)
+AudioProfileManager:RegisterOverride(VoiceoverVolumeController)

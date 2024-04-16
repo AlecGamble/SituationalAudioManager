@@ -7,9 +7,8 @@ local CutsceneVolumeController = AudioProfileManager:NewModule("CutsceneVolumeCo
 CutsceneVolumeController.name = "Cutscene"
 
 CutsceneVolumeController.configOptions = {
-    name = "",
+    name = "Cutscene",
     type = 'group',
-    inline = true,
     disabled = function() return SAM.db.profile.overrides[CutsceneVolumeController.name] == nil or SAM.db.profile.overrides[CutsceneVolumeController.name].active == false end,
     hidden = function() return SAM.db.profile.overrides[CutsceneVolumeController.name] == nil or SAM.db.profile.overrides[CutsceneVolumeController.name].active == false end,
     args = {
@@ -36,6 +35,7 @@ CutsceneVolumeController.configOptions = {
             end,
             set = function(info, v)
                 SAM.db.profile.overrides[CutsceneVolumeController.name].masterVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         testButton = {
@@ -43,7 +43,7 @@ CutsceneVolumeController.configOptions = {
             type = 'execute',
             order = 4,
             func = function()
-                AudioProfileManager.UpdateActiveVolumeController("CINEMATIC_START")
+                AudioProfileManager.UpdateActiveVolumeController(AudioProfileManager.KEY_Event_CinematicStart)
                 MovieFrame_PlayMovie(MovieFrame, 960)
             end
         }
@@ -66,41 +66,31 @@ function CutsceneVolumeController:ValidateSettings()
 end
 
 function CutsceneVolumeController:ApplyAudioSettings()
-    if SAM.db.profile.overrides[self.name].masterVolume == 0 and SAM.db.profile.fixCutsceneBug and GetCVar(AudioProfileManager.KEY_CVar_MasterVolume) == 0 then
-        SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, 0.001)
-    else
-        SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
-    end
-end
-
-function CutsceneVolumeController:ShouldBeActive(eventName)
-    if eventName == AudioProfileManager.KEY_Event_CinematicStart or eventName == AudioProfileManager.KEY_Event_MovieStart then
-        return true
-    end
-
-    return false
+    local targetVolume = SAM.db.profile.overrides[self.name].masterVolume
+    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, (targetVolume <= 0 and SAM.db.profile.fixCutsceneBug) and 0.001 or targetVolume)
 end
 
 function CutsceneVolumeController:Subscribe()
-    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStart, self.UpdateEvent)
-    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStart, self.UpdateEvent)
-    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, self.UpdateEvent)
-    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStop, self.UpdateEvent)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStart, CutsceneVolumeController.OnCutsceneStart)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStart, CutsceneVolumeController.OnCutsceneStart)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, CutsceneVolumeController.OnCutsceneStop)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStop, CutsceneVolumeController.OnCutsceneStop)
 end
 
 function CutsceneVolumeController:Unsubscribe()
-    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStart, self.UpdateEvent)
-    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStart, self.UpdateEvent)
-    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop, self.UpdateEvent)
-    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStop, self.UpdateEvent)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStart)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStart)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStop)
 end
 
-function CutsceneVolumeController.UpdateEvent(event)
-    if eventName == AudioProfileManager.KEY_Event_CinematicStart or eventName == AudioProfileManager.KEY_Event_MovieStart then
-        AudioProfileManager.ActiveVolumeController = CutsceneVolumeController
-    elseif eventName == AudioProfileManager.KEY_Event_CinematicStop or eventName == AudioProfileManager.KEY_Event_MovieStop then
-        AudioProfileManager.UpdateActiveVolumeController(AudioProfileManager.KEY_Event_CinematicStop)
-    end
+function CutsceneVolumeController.OnCutsceneStart()
+    AudioProfileManager.Flags.InCutscene = true
+    CutsceneVolumeController:ApplyAudioSettings()
+end
+
+function CutsceneVolumeController.OnCutsceneStop()
+    AudioProfileManager.Flags.InCutscene = false
 end
 
 AudioProfileManager:RegisterOverride(CutsceneVolumeController)

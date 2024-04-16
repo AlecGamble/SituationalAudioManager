@@ -9,6 +9,7 @@ local appliedOverrides = {}
 local options = {
     name = "Volume Settings",
     type = 'group',
+    childGroups = "tab",
     order = 40,
     args = {
         overridesHeader = {
@@ -44,6 +45,8 @@ local options = {
 
                 SAM.db.profile.overrides[id].active = true
                 override:ValidateSettings()
+                override:Subscribe()
+                AudioProfileManager:RefreshConfig()
                 AudioProfileManager:UpdateAppliedOverrides()
             end
         },
@@ -53,13 +56,21 @@ local options = {
             order = 23,
             values = appliedOverrides,
             set = function(info, id)
+                local override = AudioProfileManager.Overrides[id]
+
                 -- edge case for empty applied overrides list
                 if not SAM.db.profile.overrides[id] then
                     return
                 end
 
                 SAM.db.profile.overrides[id].active = false
+
+                if override.Unsubscribe ~= nil then
+                    override:Unsubscribe()
+                end
+                
                 AudioProfileManager:UpdateAppliedOverrides()
+                AudioProfileManager:RefreshConfig()
             end
         }
     }

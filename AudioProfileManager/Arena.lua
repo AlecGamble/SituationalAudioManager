@@ -2,17 +2,17 @@ local addonName, addonTable = ...
 
 local SAM = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local AudioProfileManager = SAM:GetModule("AudioProfileManager")
+local ArenaVolumeController = AudioProfileManager:NewModule("ArenaVolumeController", "AceEvent-3.0")
 
-local override = {}
+ArenaVolumeController.name = "Arena"
 
-override.name = "Arena"
+ArenaVolumeController.instanceName = "arena"
 
-override.configOptions = {
-    name = "",
+ArenaVolumeController.configOptions = {
+    name = "Arena",
     type = 'group',
-    inline = true,
-    disabled = function() return SAM.db.profile.overrides[override.name] == nil or SAM.db.profile.overrides[override.name].active == false end,
-    hidden = function() return SAM.db.profile.overrides[override.name] == nil or SAM.db.profile.overrides[override.name].active == false end,
+    disabled = function() return SAM.db.profile.overrides[ArenaVolumeController.name] == nil or SAM.db.profile.overrides[ArenaVolumeController.name].active == false end,
+    hidden = function() return SAM.db.profile.overrides[ArenaVolumeController.name] == nil or SAM.db.profile.overrides[ArenaVolumeController.name].active == false end,
     args = {
         header = {
             name = "Arena Volume Settings",
@@ -33,11 +33,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].masterVolume
+                return SAM.db.profile.overrides[ArenaVolumeController.name].masterVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].masterVolume = v
-                -- AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                SAM.db.profile.overrides[ArenaVolumeController.name].masterVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         musicVolume = {
@@ -49,11 +49,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].musicVolume
+                return SAM.db.profile.overrides[ArenaVolumeController.name].musicVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].musicVolume = v
-                -- AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                SAM.db.profile.overrides[ArenaVolumeController.name].musicVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         sfxVolume = {
@@ -65,11 +65,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].sfxVolume
+                return SAM.db.profile.overrides[ArenaVolumeController.name].sfxVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].sfxVolume = v
-                -- AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                SAM.db.profile.overrides[ArenaVolumeController.name].sfxVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         ambienceVolume = {
@@ -81,11 +81,11 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].ambienceVolume
+                return SAM.db.profile.overrides[ArenaVolumeController.name].ambienceVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].ambienceVolume = v
-                -- AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                SAM.db.profile.overrides[ArenaVolumeController.name].ambienceVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         },
         dialogVolume = {
@@ -97,18 +97,18 @@ override.configOptions = {
             step = 0.05,
             isPercent=true,
             get = function(info)
-                return SAM.db.profile.overrides[override.name].dialogVolume
+                return SAM.db.profile.overrides[ArenaVolumeController.name].dialogVolume
             end,
             set = function(info, v)
-                SAM.db.profile.overrides[override.name].dialogVolume = v
-                --AudioProfileManager.ActiveVolumeController:ApplyAudioSettings()
+                SAM.db.profile.overrides[ArenaVolumeController.name].dialogVolume = v
+                AudioProfileManager:RefreshConfig()
             end,
         }
     }
 }
 
-function override:InitializeDefaultValues()
-    SAM.db.profile.overrides[override.name] = {
+function ArenaVolumeController:InitializeDefaultValues()
+    SAM.db.profile.overrides[self.name] = {
         masterVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarMasterVolume)),
         musicVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarMusicVolume)),
         sfxVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarSfxVolume)),
@@ -118,43 +118,53 @@ function override:InitializeDefaultValues()
     }
 end
 
-function override:ValidateSettings()
-    if not SAM.db.profile.overrides[override.name] then
-        override:InitializeDefaultValues()
+function ArenaVolumeController:ValidateSettings()
+    if not SAM.db.profile.overrides[self.name] then
+        self:InitializeDefaultValues()
     end 
 
-    SAM.db.profile.overrides[override.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[override.name].masterVolume))
-    SAM.db.profile.overrides[override.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[override.name].musicVolume))
-    SAM.db.profile.overrides[override.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[override.name].sfxVolume))
-    SAM.db.profile.overrides[override.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[override.name].ambienceVolume))
-    SAM.db.profile.overrides[override.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[override.name].dialogVolume))
+    SAM.db.profile.overrides[self.name].masterVolume = max(0, min(1, SAM.db.profile.overrides[self.name].masterVolume))
+    SAM.db.profile.overrides[self.name].musicVolume = max(0, min(1, SAM.db.profile.overrides[self.name].musicVolume))
+    SAM.db.profile.overrides[self.name].sfxVolume = max(0, min(1, SAM.db.profile.overrides[self.name].sfxVolume))
+    SAM.db.profile.overrides[self.name].ambienceVolume = max(0, min(1, SAM.db.profile.overrides[self.name].ambienceVolume))
+    SAM.db.profile.overrides[self.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[self.name].dialogVolume))
 end
 
-function override:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVarMasterVolume, SAM.db.profile.overrides[override.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVarMusicVolume, SAM.db.profile.overrides[override.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVarSfxVolume, SAM.db.profile.overrides[override.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVarAmbienceVolume, SAM.db.profile.overrides[override.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVarDialogVolume, SAM.db.profile.overrides[override.name].dialogVolume)
+function ArenaVolumeController:ApplyAudioSettings()
+    SetCVar(AudioProfileManager.KEY_CVarMasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
+    SetCVar(AudioProfileManager.KEY_CVarMusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
+    SetCVar(AudioProfileManager.KEY_CVarSfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
+    SetCVar(AudioProfileManager.KEY_CVarAmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
+    SetCVar(AudioProfileManager.KEY_CVarDialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
 end
 
--- TODO: 
-function override:ShouldBeActive(eventName)
+function ArenaVolumeController:Subscribe()
+    self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, ArenaVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, ArenaVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, ArenaVolumeController.OnEnterWorld)
+    self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStop, ArenaVolumeController.OnEnterWorld)
+    self:RegisterMessage(AudioProfileManager.KEY_Event_AddonRequest, ArenaVolumeController.OnEnterWorld)
+end
+
+function ArenaVolumeController:Unsubscribe()
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
+    self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStop)
+    self:UnregisterMessage(AudioProfileManager.KEY_Event_AddonRequest)
+end
+
+function ArenaVolumeController.OnEnterWorld()
+    -- being in an arena should not override cutscenes or talking heads
+    if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
+
     local inInstance, instanceType = IsInInstance()
 
-    if not inInstance then
-        return false
-    end
+    if not inInstance then return end
 
-    if  (eventName == "PLAYER_ENTERING_WORLD") or 
-        (eventName == "CINEMATIC_STOP" and SAM.db.profile.overrides.cutscene == true) or 
-        (eventName == "TALKINGHEAD_CLOSE" and SAM.db.profile.overrides.voiceover == true) or 
-        (eventName == "ADDON_UPDATE")
-    then
-        if instanceType == "arena" then
-            return true
-        end
+    if instanceType == "arena" then
+        DungeonVolumeController:ApplyAudioSettings()
     end
 end
 
-AudioProfileManager:RegisterOverride(override)
+AudioProfileManager:RegisterOverride(ArenaVolumeController)
