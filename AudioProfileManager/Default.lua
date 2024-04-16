@@ -117,7 +117,7 @@ function DefaultVolumeController:InitializeDefaultValues()
 end
 
 function DefaultVolumeController:ValidateSettings()
-    if not SAM.db.profile.defaultVolumeSettings then
+    if not SAM.db.profile.defaultVolumeSettings or SAM.db.profile.defaultVolumeSettings.initialized == false then
         DefaultVolumeController:InitializeDefaultValues()
     end 
 

@@ -35,6 +35,8 @@ end
 function AudioProfileManager:OnEnable()
     SAM.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
 
+    self:ValidateSettings()
+
     self.DefaultAudioProfile:Subscribe()
 
     for k, override in pairs(self.Overrides) do
@@ -55,22 +57,13 @@ function AudioProfileManager:OnDisable()
 end
 
 function AudioProfileManager:ValidateSettings()
-    -- check for uninitialized settings and initialize them
-    if SAM.db.profile.defaultVolumeSettings == nil or not SAM.db.profile.defaultVolumeSettings.initialized then
-        AudioProfileManager.DefaultAudioProfile:InitializeDefaultValues()
-    end
-
-    for k, override in pairs(AudioProfileManager.Overrides) do
-        if override.active and override.initialized == false then -- this should not be possible but just in case
-            override:InitializeDefaultValues()
-        end
-    end
-
     -- ensure settings are valid
-    AudioProfileManager.DefaultAudioProfile:ValidateSettings()
+    self.DefaultAudioProfile:ValidateSettings()
 
-    for k, override in pairs(AudioProfileManager.Overrides) do
-        override:ValidateSettings()
+    for k, override in pairs(self.Overrides) do 
+        if SAM.db.profile.overrides[override.name] and SAM.db.profile.overrides[override.name].active then
+            override:ValidateSettings()
+        end
     end
 end
 
@@ -79,6 +72,7 @@ function AudioProfileManager:RegisterOverride(override)
 end
 
 function AudioProfileManager:RefreshConfig()
+    self:ValidateSettings()
 
     local inInstance, instanceType = IsInInstance()
 

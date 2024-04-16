@@ -18,17 +18,10 @@ local defaultProfileSettings = {
 function SAM:OnInitialize()
     -- setup app
     SAM.db = LibStub("AceDB-3.0"):New("SituationalAudioManager_Database", defaultProfileSettings, true)
-    SAM.db.RegisterCallback(SAM, "OnProfileChanged", "UpdateSettings")
-
-    --SAM:UpdateAppliedOverrides()
-    SAM:UpdateSettings()
 
     -- register chat commands
     SAM:RegisterChatCommand("sam", "SlashCommand")
     SAM:RegisterChatCommand("situationalaudiomanager", "SlashCommand")
-end
-
-function SAM:UpdateSettings()
 end
 
 function SAM:SlashCommand(msg)
@@ -47,7 +40,7 @@ function SAM:SlashCommand(msg)
         end
         print("|cffe74c3c[SAM] Warning:|r no profile was found with name \""..args[2].."\". Please make sure one with this name exists in Options > Addons > SituationalAudioManager > Profiles.")
         return nil
-    elseif #args >= 2 and string.lower(args[1]) == "restart" then
+    elseif #args >= 1 and string.lower(args[1]) == "restart" then
         Sound_GameSystem_RestartSoundSystem()
     else
         -- must be called twice
