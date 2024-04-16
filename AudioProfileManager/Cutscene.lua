@@ -43,7 +43,8 @@ CutsceneVolumeController.configOptions = {
             type = 'execute',
             order = 4,
             func = function()
-                AudioProfileManager.UpdateActiveVolumeController(AudioProfileManager.KEY_Event_CinematicStart)
+                -- seems to need to be triggered manually when calling MovieFrame_PlayMovie
+                AudioProfileManager.OnCutsceneStart()
                 MovieFrame_PlayMovie(MovieFrame, 960)
             end
         }

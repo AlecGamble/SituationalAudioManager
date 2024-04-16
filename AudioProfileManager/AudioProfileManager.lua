@@ -110,7 +110,7 @@ end
 
 function AudioProfileManager.OnCutsceneStart()
     -- Fix for cutscenes not playing
-    if SAM.db.profile.fixCutsceneBug and GetCVar(AudioProfileManager.KEY_CVar_MasterVolume) == 0 then
+    if SAM.db.profile.fixCutsceneBug and tonumber(GetCVar(AudioProfileManager.KEY_CVar_MasterVolume)) <= 0 then
         SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, 0.001)
     end
 end
