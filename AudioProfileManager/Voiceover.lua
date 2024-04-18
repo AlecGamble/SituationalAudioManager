@@ -129,29 +129,54 @@ function VoiceoverVolumeController:ValidateSettings()
 end
 
 function VoiceoverVolumeController:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
+    SAM:Log("Applying: "..self.name, SAM.LogLevels.Verbose)
+
+    AudioProfileManager.ActiveProfile = self.name
+
+    if SAM.db.profile.blendBetweenAudioProfiles then
+        AudioProfileManager:BlendToNewAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    else
+        AudioProfileManager:SetAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    end
 end
 
 function VoiceoverVolumeController:Subscribe()
+    SAM:Log("Subscribed to: "..self.name, SAM.LogLevels.Verbose)
+
     self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStart, VoiceoverVolumeController.OnVoiceoverStart)
     self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, VoiceoverVolumeController.OnVoiceoverStop)
 end
 
 function VoiceoverVolumeController:Unsubscribe()
+    SAM:Log("Unsubscribed from: "..self.name, SAM.LogLevels.Verbose)
+
     self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStart)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
 end
 
 function VoiceoverVolumeController.OnVoiceoverStart()
     AudioProfileManager.Flags.InVoiceover = true
+
+    if AudioProfileManager.ActiveProfile == VoiceoverVolumeController.name then return end
+
     VoiceoverVolumeController:ApplyAudioSettings()
 end
 
 function VoiceoverVolumeController.OnVoiceoverStop()
+    AudioProfileManager.Flags.InVoiceover = false
+    VoiceoverVolumeController:SendMessage(AudioProfileManager.KEY_Event_AddonRequest)
 end
 
 function VoiceoverVolumeController.UpdateEvent(event)

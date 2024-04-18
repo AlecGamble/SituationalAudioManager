@@ -67,11 +67,16 @@ function CutsceneVolumeController:ValidateSettings()
 end
 
 function CutsceneVolumeController:ApplyAudioSettings()
+    SAM:Log("Applying: "..self.name, SAM.LogLevels.Verbose)
+    
+    AudioProfileManager.ActiveProfile = self.name
     local targetVolume = SAM.db.profile.overrides[self.name].masterVolume
     SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, (targetVolume <= 0 and SAM.db.profile.fixCutsceneBug) and 0.001 or targetVolume)
 end
 
 function CutsceneVolumeController:Subscribe()
+    SAM:Log("Subscribed to: "..self.name, SAM.LogLevels.Verbose)
+
     self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStart, CutsceneVolumeController.OnCutsceneStart)
     self:RegisterEvent(AudioProfileManager.KEY_Event_MovieStart, CutsceneVolumeController.OnCutsceneStart)
     self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, CutsceneVolumeController.OnCutsceneStop)
@@ -79,6 +84,8 @@ function CutsceneVolumeController:Subscribe()
 end
 
 function CutsceneVolumeController:Unsubscribe()
+    SAM:Log("Unsubscribed from: "..self.name, SAM.LogLevels.Verbose)
+
     self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStart)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_MovieStart)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
@@ -87,11 +94,15 @@ end
 
 function CutsceneVolumeController.OnCutsceneStart()
     AudioProfileManager.Flags.InCutscene = true
+
+    if AudioProfileManager.ActiveProfile == CutsceneVolumeController.name then return end
+
     CutsceneVolumeController:ApplyAudioSettings()
 end
 
 function CutsceneVolumeController.OnCutsceneStop()
     AudioProfileManager.Flags.InCutscene = false
+    CutsceneVolumeController:SendMessage(AudioProfileManager.KEY_Event_AddonRequest)
 end
 
 AudioProfileManager:RegisterOverride(CutsceneVolumeController)

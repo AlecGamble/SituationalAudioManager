@@ -130,14 +130,31 @@ function BattlegroundsVolumeController:ValidateSettings()
 end
 
 function BattlegroundsVolumeController:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
+    SAM:Log("Applying: "..self.name, SAM.LogLevels.Verbose)
+
+    AudioProfileManager.ActiveProfile = self.name
+
+    if SAM.db.profile.blendBetweenAudioProfiles then
+        AudioProfileManager:BlendToNewAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    else
+        AudioProfileManager:SetAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    end
 end
 
 function BattlegroundsVolumeController:Subscribe()
+    SAM:Log("Subscribed to: "..self.name, SAM.LogLevels.Verbose)
     self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, BattlegroundsVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, BattlegroundsVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, BattlegroundsVolumeController.OnEnterWorld)
@@ -146,6 +163,7 @@ function BattlegroundsVolumeController:Subscribe()
 end
 
 function BattlegroundsVolumeController:Unsubscribe()
+    SAM:Log("Unsubscribed from: "..self.name, SAM.LogLevels.Verbose)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
@@ -154,6 +172,8 @@ function BattlegroundsVolumeController:Unsubscribe()
 end
 
 function BattlegroundsVolumeController.OnEnterWorld()
+    if AudioProfileManager.ActiveProfile == BattlegroundsVolumeController.name then return end
+
     -- being in a battleground should not override cutscenes or talking heads
     if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
 

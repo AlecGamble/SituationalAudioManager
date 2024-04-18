@@ -109,11 +109,11 @@ ArenaVolumeController.configOptions = {
 
 function ArenaVolumeController:InitializeDefaultValues()
     SAM.db.profile.overrides[self.name] = {
-        masterVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarMasterVolume)),
-        musicVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarMusicVolume)),
-        sfxVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarSfxVolume)),
-        ambienceVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarAmbienceVolume)),
-        dialogVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVarDialogVolume)),
+        masterVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MasterVolume)),
+        musicVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_MusicVolume)),
+        sfxVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_SfxVolume)),
+        ambienceVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume)),
+        dialogVolume = tonumber(GetCVar(AudioProfileManager.KEY_CVar_DialogVolume)),
         initialized = true,
     }
 end
@@ -131,14 +131,32 @@ function ArenaVolumeController:ValidateSettings()
 end
 
 function ArenaVolumeController:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVarMasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVarMusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVarSfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVarAmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVarDialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
+    SAM:Log("Applying: "..self.name, SAM.LogLevels.Verbose)
+
+    AudioProfileManager.ActiveProfile = self.name
+
+    if SAM.db.profile.blendBetweenAudioProfiles then
+        AudioProfileManager:BlendToNewAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    else
+        AudioProfileManager:SetAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    end
 end
 
 function ArenaVolumeController:Subscribe()
+    SAM:Log("Subscribed to: "..self.name, SAM.LogLevels.Verbose)
+
     self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, ArenaVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, ArenaVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, ArenaVolumeController.OnEnterWorld)
@@ -147,6 +165,8 @@ function ArenaVolumeController:Subscribe()
 end
 
 function ArenaVolumeController:Unsubscribe()
+    SAM:Log("Unsubscribed from: "..self.name, SAM.LogLevels.Verbose)
+
     self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
@@ -155,6 +175,8 @@ function ArenaVolumeController:Unsubscribe()
 end
 
 function ArenaVolumeController.OnEnterWorld()
+    if AudioProfileManager.ActiveProfile == ArenaVolumeController.name then return end
+
     -- being in an arena should not override cutscenes or talking heads
     if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
 

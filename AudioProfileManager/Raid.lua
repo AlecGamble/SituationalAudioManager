@@ -131,14 +131,32 @@ function RaidVolumeController:ValidateSettings()
 end
 
 function RaidVolumeController:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.overrides[self.name].masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.overrides[self.name].musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.overrides[self.name].sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.overrides[self.name].ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.overrides[self.name].dialogVolume)
+    SAM:Log("Applying: "..self.name, SAM.LogLevels.Verbose)
+
+    AudioProfileManager.ActiveProfile = self.name
+
+    if SAM.db.profile.blendBetweenAudioProfiles then
+        AudioProfileManager:BlendToNewAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    else
+        AudioProfileManager:SetAudioProfile(
+            SAM.db.profile.overrides[self.name].masterVolume,
+            SAM.db.profile.overrides[self.name].musicVolume,
+            SAM.db.profile.overrides[self.name].sfxVolume,
+            SAM.db.profile.overrides[self.name].ambienceVolume,
+            SAM.db.profile.overrides[self.name].dialogVolume
+        )
+    end
 end
 
 function RaidVolumeController:Subscribe()
+    SAM:Log("Subscribed to: "..self.name, SAM.LogLevels.Verbose)
+
     self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, RaidVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, RaidVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, RaidVolumeController.OnEnterWorld)
@@ -147,6 +165,8 @@ function RaidVolumeController:Subscribe()
 end
 
 function RaidVolumeController:Unsubscribe()
+    SAM:Log("Unsubscribed from: "..self.name, SAM.LogLevels.Verbose)
+
     self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
@@ -155,6 +175,8 @@ function RaidVolumeController:Unsubscribe()
 end
 
 function RaidVolumeController.OnEnterWorld()
+    if AudioProfileManager.ActiveProfile == RaidVolumeController.name then return end
+
     -- being in a raid should not override cutscenes or talking heads
     if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
 
@@ -163,7 +185,7 @@ function RaidVolumeController.OnEnterWorld()
     if not inInstance then return end
 
     if instanceType == "raid" then
-        DungeonVolumeController:ApplyAudioSettings()
+        RaidVolumeController:ApplyAudioSettings()
     end
 end
 

@@ -1,11 +1,11 @@
 local addonName, addonTable = ...
 
-local Addon = LibStub("AceAddon-3.0"):GetAddon(addonName)
-local Module = Addon:NewModule("Config", "AceConsole-3.0")
+local SAM = LibStub("AceAddon-3.0"):GetAddon(addonName)
+local Config = SAM:NewModule("Config", "AceConsole-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 
-Module.options = {
+Config.options = {
     name = "Situational Audio Manager",
     type = 'group',
     args = {
@@ -30,9 +30,9 @@ Module.options = {
                 welcomeMessage = {
                     name = "Welcome to the Situational Audio Manager (SAM for short)!\n\n"
                     .."This addon is designed to allow seamless transition between various audio balancing profiles depending on what type of content you are enjoying. For example you might want to hear the game music during a raid but listen to your own music when doing world content or have the game muted except for cutscenes.\n\n"
-                    .."By default your audio configuration will have been automatically imported into the Default tab which the addon will use to set your volume. |cffff8000Whilst using the addon you must set your volume preferences via the addon and not the blizzard options interface as those settings will be overriden!!|r\n\n"
-                    .."If you would like to override the volume settings for a partiular activity or cutscenes, select overrides to add under General and then adjust their settings on the relevant tabs.\n\n"
-                    .."Multiple profiles can be set up to allow you to switch between various presets.\n\n"
+                    .."By default your audio configuration will have been automatically imported into the Volume Settings tab which the addon will use to set your volume. |cffff8000Whilst using the addon you must set your volume preferences via the addon and not the blizzard options interface as those settings will be overriden!!|r\n\n"
+                    .."If you would like to override the volume settings for a partiular activity or cutscenes, select overrides to add in the Volume Settings tab and change the settings as you wish.\n\n"
+                    .."Multiple profiles can be set up to allow you to switch between various presets and can be changed easily with the slash command below:\n\nSlash Command: /SAM Profile <profile name>.\n\n"
                     .."If you have any requests for further features or more overrides please let me know and I'll do my best to implement them!\n\n"
                     .."Thanks and enjoy!",
                     type = 'description',
@@ -78,10 +78,10 @@ Module.options = {
                     type = 'toggle',
                     order = 3,
                     set = function(info, value)
-                        Addon.db.profile.restartOnReload = value
+                        SAM.db.profile.restartOnReload = value
                     end,
                     get = function(value)
-                        return Addon.db.profile.restartOnReload
+                        return SAM.db.profile.restartOnReload
                     end,
                 },
                 restartAudioSlashCommandDescription = {
@@ -125,10 +125,10 @@ Module.options = {
     }
 }
 
-function Module:OnInitialize()
+function Config:OnInitialize()
     -- Add Ace managed user profiles tab
-    self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(Addon.db) }
+    self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(SAM.db) }
 
     AceConfig:RegisterOptionsTable("SituationalAudioManager_Options", self.options)
-    Addon.optionsFrame = AceConfigDialog:AddToBlizOptions("SituationalAudioManager_Options", "Situational Audio Manager")
+    SAM.optionsFrame = AceConfigDialog:AddToBlizOptions("SituationalAudioManager_Options", "Situational Audio Manager")
 end

@@ -101,7 +101,7 @@ DefaultVolumeController.configOptions = {
                 SAM.db.profile.defaultVolumeSettings.dialogVolume = v
                 AudioProfileManager:RefreshConfig()
             end,
-        },
+        }
     }
 }
 
@@ -129,14 +129,19 @@ function DefaultVolumeController:ValidateSettings()
 end
 
 function DefaultVolumeController:ApplyAudioSettings()
-    SetCVar(AudioProfileManager.KEY_CVar_MasterVolume, SAM.db.profile.defaultVolumeSettings.masterVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_MusicVolume, SAM.db.profile.defaultVolumeSettings.musicVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_SfxVolume, SAM.db.profile.defaultVolumeSettings.sfxVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_AmbienceVolume, SAM.db.profile.defaultVolumeSettings.ambienceVolume)
-    SetCVar(AudioProfileManager.KEY_CVar_DialogVolume, SAM.db.profile.defaultVolumeSettings.dialogVolume)
+    SAM:Log("Applying: "..DefaultVolumeController.name, SAM.LogLevels.Verbose)
+    AudioProfileManager.ActiveProfile = self.name
+
+    AudioProfileManager:BlendToNewAudioProfile(SAM.db.profile.defaultVolumeSettings.masterVolume,
+        SAM.db.profile.defaultVolumeSettings.musicVolume,
+        SAM.db.profile.defaultVolumeSettings.sfxVolume,
+        SAM.db.profile.defaultVolumeSettings.ambienceVolume,
+        SAM.db.profile.defaultVolumeSettings.dialogVolume
+    )
 end
 
 function DefaultVolumeController:Subscribe()
+    SAM:Log("Subscribed to: "..self.name, SAM.LogLevels.Verbose)
     self:RegisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld, DefaultVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop, DefaultVolumeController.OnEnterWorld)
     self:RegisterEvent(AudioProfileManager.KEY_Event_CinematicStop, DefaultVolumeController.OnEnterWorld)
@@ -145,6 +150,7 @@ function DefaultVolumeController:Subscribe()
 end
 
 function DefaultVolumeController:Unsubscribe()
+    SAM:Log("Unsubscribed from: "..self.name, SAM.LogLevels.Verbose)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_PlayerEnteringWorld)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_VoiceoverStop)
     self:UnregisterEvent(AudioProfileManager.KEY_Event_CinematicStop)
@@ -153,7 +159,8 @@ function DefaultVolumeController:Unsubscribe()
 end
 
 function DefaultVolumeController.OnEnterWorld()
-    -- default volume controller should not override cutscenes or talking heads
+    if AudioProfileManager.ActiveProfile == DefaultVolumeController.name then return end
+        -- default volume controller should not override cutscenes or talking heads
     if AudioProfileManager.Flags.InCutscene or AudioProfileManager.Flags.InVoiceover then return end
 
     local inInstance, instanceType = IsInInstance()

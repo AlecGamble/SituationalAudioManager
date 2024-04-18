@@ -11,7 +11,8 @@ local defaultProfileSettings = {
         name = "Default",
         defaultVolumeSettings = { initialized = false },
         overrides = {},
-        fixCutsceneBug = false
+        fixCutsceneBug = false,
+        blendBetweenAudioProfiles = true
     }
 }
 
@@ -38,10 +39,12 @@ function SAM:SlashCommand(msg)
                 return nil
             end
         end
-        print("|cffe74c3c[SAM] Warning:|r no profile was found with name \""..args[2].."\". Please make sure one with this name exists in Options > Addons > SituationalAudioManager > Profiles.")
+        SAM:LogWarning("No profile was found with name \""..args[2].."\". Please make sure one with this name exists in Options > Addons > SituationalAudioManager > Profiles.", SAM.LogLevels.Always)
         return nil
     elseif #args >= 1 and string.lower(args[1]) == "restart" then
         Sound_GameSystem_RestartSoundSystem()
+    elseif #args >= 2 and string.lower(args[1]) == "log" then
+        SAM:SetLogLevel(args[2])
     else
         -- must be called twice
         InterfaceOptionsFrame_OpenToCategory(SAM.optionsFrame)

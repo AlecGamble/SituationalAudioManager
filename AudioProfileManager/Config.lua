@@ -72,7 +72,21 @@ local options = {
                 AudioProfileManager:UpdateAppliedOverrides()
                 AudioProfileManager:RefreshConfig()
             end
-        }
+        },
+        blendBetweenAudioProfilesToggle = {
+            name = "Blend Between Audio Profiles",
+            desc = "When enabled will blend smoothly between audio profiles",
+            descStyle = "inline",
+            width = "full",
+            type = 'toggle',
+            order = 24,
+            set = function(info, value)
+                SAM.db.profile.blendBetweenAudioProfiles = value
+            end,
+            get = function(value)
+                return SAM.db.profile.blendBetweenAudioProfiles
+            end,
+        },
     }
 }
 
