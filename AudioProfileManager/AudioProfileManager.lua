@@ -120,17 +120,17 @@ function AudioProfileManager:RefreshConfig()
     if not inInstance then
         self.DefaultAudioProfile:ApplyAudioSettings()
     elseif instanceType == "none" or instanceType == nil then -- unknown instances i.e. scenarios
-        self.DefaultAudioProfile:ApplyAudioSettings()
+        self.DefaultAudioProfile:ApplyAudioSettings(true)
     else
         local overrideInstanceFound = false
         for k, override in pairs(self.Overrides) do
             if override.instanceName == instanceType and SAM.db.profile.overrides[override.name] and SAM.db.profile.overrides[override.name].active then
-                override:ApplyAudioSettings()
+                override:ApplyAudioSettings(true)
                 overrideInstanceFound = true
             end
 
             if not overrideInstanceFound then
-                self.DefaultAudioProfile:ApplyAudioSettings()
+                self.DefaultAudioProfile:ApplyAudioSettings(true)
             end
         end
     end

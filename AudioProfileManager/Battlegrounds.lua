@@ -129,12 +129,12 @@ function BattlegroundsVolumeController:ValidateSettings()
     SAM.db.profile.overrides[self.name].dialogVolume = max(0, min(1, SAM.db.profile.overrides[self.name].dialogVolume))
 end
 
-function BattlegroundsVolumeController:ApplyAudioSettings()
+function BattlegroundsVolumeController:ApplyAudioSettings(instant)
     SAM:Log("Applying: "..self.name, SAM.LogLevels.Verbose)
 
     AudioProfileManager.ActiveProfile = self.name
 
-    if SAM.db.profile.blendBetweenAudioProfiles then
+    if SAM.db.profile.blendBetweenAudioProfiles and not instant then
         AudioProfileManager:BlendToNewAudioProfile(
             SAM.db.profile.overrides[self.name].masterVolume,
             SAM.db.profile.overrides[self.name].musicVolume,

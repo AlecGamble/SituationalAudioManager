@@ -25,8 +25,6 @@ function SAM:LogWarning(msg, logLevel)
     end
 end
 
-
-
 function SAM:SetLogLevel(logLevel)
     if SAM.LogLevels[logLevel] == nil then
         local msg = "No such log level ("..logLevel..") exists. Try one of these:"

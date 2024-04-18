@@ -128,16 +128,27 @@ function DefaultVolumeController:ValidateSettings()
     SAM.db.profile.defaultVolumeSettings.dialogVolume = max(0, min(1, SAM.db.profile.defaultVolumeSettings.dialogVolume))
 end
 
-function DefaultVolumeController:ApplyAudioSettings()
+function DefaultVolumeController:ApplyAudioSettings(instant)
     SAM:Log("Applying: "..DefaultVolumeController.name, SAM.LogLevels.Verbose)
     AudioProfileManager.ActiveProfile = self.name
 
-    AudioProfileManager:BlendToNewAudioProfile(SAM.db.profile.defaultVolumeSettings.masterVolume,
-        SAM.db.profile.defaultVolumeSettings.musicVolume,
-        SAM.db.profile.defaultVolumeSettings.sfxVolume,
-        SAM.db.profile.defaultVolumeSettings.ambienceVolume,
-        SAM.db.profile.defaultVolumeSettings.dialogVolume
-    )
+    if SAM.db.profile.blendBetweenAudioProfiles and not instant then
+        AudioProfileManager:BlendToNewAudioProfile(
+            SAM.db.profile.defaultVolumeSettings.masterVolume,
+            SAM.db.profile.defaultVolumeSettings.musicVolume,
+            SAM.db.profile.defaultVolumeSettings.sfxVolume,
+            SAM.db.profile.defaultVolumeSettings.ambienceVolume,
+            SAM.db.profile.defaultVolumeSettings.dialogVolume
+        )
+    else
+        AudioProfileManager:SetAudioProfile(
+            SAM.db.profile.defaultVolumeSettings.masterVolume,
+            SAM.db.profile.defaultVolumeSettings.musicVolume,
+            SAM.db.profile.defaultVolumeSettings.sfxVolume,
+            SAM.db.profile.defaultVolumeSettings.ambienceVolume,
+            SAM.db.profile.defaultVolumeSettings.dialogVolume
+        )
+    end
 end
 
 function DefaultVolumeController:Subscribe()
