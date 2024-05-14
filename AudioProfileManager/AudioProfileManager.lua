@@ -139,7 +139,8 @@ end
 function AudioProfileManager.OnEnterWorld()
     -- Fix for System Default Output Device not updating
     if SAM.db.profile.restartOnReload then
-        Sound_GameSystem_RestartSoundSystem()
+        -- SAM:Log("Restarting Sound System", SAM.LogLevels.Always)
+        -- Sound_GameSystem_RestartSoundSystem()
     end
 end
 

@@ -70,20 +70,20 @@ Config.options = {
                         Sound_GameSystem_RestartSoundSystem()
                     end
                 },
-                restartOnReloadToggle = {
-                    name = "Restart On Entering World",
-                    desc = "Restarts the audio system whenever you exit a loading screen.",
-                    descStyle = "inline",
-                    width = "full",
-                    type = 'toggle',
-                    order = 3,
-                    set = function(info, value)
-                        SAM.db.profile.restartOnReload = value
-                    end,
-                    get = function(value)
-                        return SAM.db.profile.restartOnReload
-                    end,
-                },
+                -- restartOnReloadToggle = {
+                --     name = "Restart On Entering World",
+                --     desc = "Restarts the audio system whenever you exit a loading screen.",
+                --     descStyle = "inline",
+                --     width = "full",
+                --     type = 'toggle',
+                --     order = 3,
+                --     set = function(info, value)
+                --         SAM.db.profile.restartOnReload = value
+                --     end,
+                --     get = function(value)
+                --         return SAM.db.profile.restartOnReload
+                --     end,
+                -- },
                 restartAudioSlashCommandDescription = {
                     name = "\nSlash Command: /sam restart",
                     type = 'description',
