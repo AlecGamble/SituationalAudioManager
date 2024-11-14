@@ -46,9 +46,7 @@ function SAM:SlashCommand(msg)
     elseif #args >= 2 and string.lower(args[1]) == "log" then
         SAM:SetLogLevel(args[2])
     else
-        -- must be called twice
-        InterfaceOptionsFrame_OpenToCategory(SAM.optionsFrame)
-        InterfaceOptionsFrame_OpenToCategory(SAM.optionsFrame)
+        Settings.OpenToCategory(SAM.optionsFrame.name)
         return nil
     end
 end
