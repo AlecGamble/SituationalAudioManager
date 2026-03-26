@@ -18,8 +18,8 @@ local CutsceneContext =
 function CutsceneContext:OnEnable()
     SituationalAudioManager:RegisterEvent("CINEMATIC_START", function() self:OnCinematicStart() end)
     SituationalAudioManager:RegisterEvent("PLAY_MOVIE", function() self:OnMovieStart() end)
-    SituationalAudioManager:RegisterEvent("CINEMATIC_STOP", function() self:OnCutsceneEnd() end)
-    SituationalAudioManager:RegisterEvent("STOP_MOVIE", function() self:OnCutsceneEnd() end)
+    SituationalAudioManager:RegisterEvent("CINEMATIC_STOP", function() self:OnCinematicEnd() end)
+    SituationalAudioManager:RegisterEvent("STOP_MOVIE", function() self:OnCinematicEnd() end)
 end
 
 function CutsceneContext:OnCinematicStart()
