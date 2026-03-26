@@ -1,5 +1,6 @@
 local addonName, addonTable = ...
 local SituationalAudioManager = LibStub("AceAddon-3.0"):GetAddon(addonName)
+local ldbi = LibStub("LibDBIcon-1.0")
 
 local GeneralPage = {}
 
@@ -95,6 +96,27 @@ function GeneralPage:GetOptions()
                         SituationalAudioManager:EnableModule("TalkingHeadSuppressor")
                     else
                         SituationalAudioManager:DisableModule("TalkingHeadSuppressor")
+                    end
+                end,
+            },
+            minimapButtonHeader = {
+                name = "Enable Minimap Button",
+                type = "header",
+                order = 12
+            },
+            minimapButtonToggle = {
+                name = "Enable Minimap Button",
+                type = "toggle",
+                order = 13,
+                get = function() 
+                    return SituationalAudioManager.db.profile.minimap.enabled
+                end,
+                set = function(_, v)
+                    SituationalAudioManager.db.profile.minimap.enabled = v
+                    if v then
+                        ldbi:Show(addonName)
+                    else
+                        ldbi:Hide(addonName)
                     end
                 end,
             }

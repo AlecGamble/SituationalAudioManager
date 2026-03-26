@@ -5,10 +5,12 @@ local Logger = LibStub("LibSituationalLogger-1.0")
 local ldb = LibStub("LibDataBroker-1.1")
 local ldbi = LibStub("LibDBIcon-1.0")
 
-local LibDataBroker
-
 function MinimapButtonModule:OnInitialize()
-    SituationalAudioManager.db.profile.minimap = SituationalAudioManager.db.profile.minimap or {}
+    SituationalAudioManager.db.profile.minimap = SituationalAudioManager.db.profile.minimap or { enabled = true }
+    if not SituationalAudioManager.db.profile.minimap.enabled then
+        ldbi:Hide(addonName)
+        return
+    end
     addonTable.broker = ldb:NewDataObject(addonName,{
         type = "data source", 
         text = "SAM", 
@@ -17,15 +19,23 @@ function MinimapButtonModule:OnInitialize()
             if button == "LeftButton" then
                 SituationalAudioManager:OpenDropdownMenu()
             elseif button == "RightButton" then
-                SituationalAudioManager.Config:Show()
+                if IsShiftKeyDown() then
+                    SituationalAudioManager.db.profile.minimap.enabled = false
+                    ldbi:Hide(addonName)
+                else
+                    SituationalAudioManager.Config:Show()
+                end
             end
         end,
         OnTooltipShow = function(tooltip)
             tooltip:AddLine("Situational Audio Manager")
-            tooltip:AddLine("Left-click: Select Profile")
-            tooltip:AddLine("Right-click: Open Settings")
+            tooltip:AddLine("Left-Click: Select Profile")
+            tooltip:AddLine("Right-Click: Open Settings")
+            tooltip:AddLine("Shift-Right-Click: Remove Minimap Button")
         end
     })
+
+    ldbi:Register(addonName, addonTable.broker, SituationalAudioManager.db.profile.minimap)
 end
 
 function SituationalAudioManager:OpenDropdownMenu()
@@ -53,12 +63,3 @@ function SituationalAudioManager:OpenDropdownMenu()
 
     ToggleDropDownMenu(1, nil, self.dropdownMenu, "cursor", 0, 0)
 end
-
-function MinimapButtonModule:OnEnable()
-    ldbi:Register(addonName, addonTable.broker, SituationalAudioManager.db.profile.minimap)
-end
-
-function MinimapButtonModule:OnDisable()
-    ldbi:Hide(addonName)
-end
-
