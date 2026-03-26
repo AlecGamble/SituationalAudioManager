@@ -5,13 +5,15 @@
 ## Version: 1.0
 ## Notes: Dynamically manage audio profiles.
 ## SavedVariables: SituationalAudioManager_Database, SituationalLogger_Database
-## OptionalDependencies: Ace3
+## OptionalDependencies: Ace3, LibDataBroker-1.1, LibDBIcon-1.0
 
 ## X-Embeds: Ace3 
 
 #@no-lib-strip@
 embeds.xml
 #@end-no-lib-strip@
+
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 # Core
 Utils\Utils.lua
@@ -37,5 +39,6 @@ Core\UI\GeneralPage.lua
 Core\UI\ContextsPage.lua
 
 # Additional Modules
-# Modules\TalkingHeadSuppressor.lua
+Modules\TalkingHeadSuppressor.lua
 Modules\CutsceneBugFix.lua
+Modules\MinimapButton.lua

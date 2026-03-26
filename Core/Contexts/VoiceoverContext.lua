@@ -27,14 +27,12 @@ end
 
 function VoiceoverContext:OnTalkingHeadStart()
     self.isTalkingHeadActive = true
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from TALKINGHEAD_REQUESTED")
-    SituationalAudioManager.SettingsEngine:Apply()
+    SituationalAudioManager:RefreshSettings("TALKINGHEAD_REQUESTED")
 end
 
 function VoiceoverContext:OnTalkingHeadEnd()
     self.isTalkingHeadActive = false
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from TALKINGHEAD_CLOSE")
-    SituationalAudioManager.SettingsEngine:Apply()
+    SituationalAudioManager:RefreshSettings("TALKINGHEAD_CLOSE")
 end
 
 function VoiceoverContext:IsActive()

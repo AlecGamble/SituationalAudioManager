@@ -9,7 +9,7 @@ function ContextsPage:BuildContextPage(contextDef)
     overrideControls["header"] = 
     {
         name = string.format("%s Volume Settings",contextDef.name),
-        type = 'header',
+        type = "header",
         order = 0
     }
 
@@ -40,7 +40,8 @@ function ContextsPage:GetOptions()
     return 
     {
         name = "Situations",
-        type = 'group',
+        desc = "Settings for overriding volume settings under specific conditions (zone, activity etc.).",
+        type = "group",
         order = 30,
         childGroups = "select",
         args = contextPages

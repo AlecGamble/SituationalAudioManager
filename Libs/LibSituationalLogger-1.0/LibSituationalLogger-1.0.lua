@@ -90,7 +90,7 @@ function Logger:_log(logType, level, msg, ...)
     local chatPrefix = chatPrefixes[logType]
     local logPrefix = logPrefixes[logType]
     local chatMsg = string.format("[%s]%s %s", timestamp(), chatPrefix, msg)
-    local logMsg = string.format("[%s]%s %s", timestamp(), logPrefix, msg)
+    local logMsg = string.format("[%s]%s %s", timestamp(), logPrefix, msg):gsub("\n", " | ")
 
     if not self.initialised then
         table.insert(self.Buffer, { level = level, chatMsg = chatMsg, logMsg = logMsg })

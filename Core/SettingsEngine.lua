@@ -44,14 +44,15 @@ end
 ------------------------------------------------
 function SettingsEngine:Apply()
     local settings = self:GetSettings()
-
+    local msg = "Applying Audio Settings:"
     for _, setting in ipairs(settings) do
         local handler = Handlers[setting.def.Handler]
         if handler then
-            Logger:Log(Logger.LogLevels.verbose, "Applying %s from %s: %s", setting.def.Name, setting.source, tostring(setting.value))
+            msg = msg..string.format("\n%s: %s (source: %s)", setting.def.Name, tostring(setting.value), setting.source)
             handler.Apply(setting.def, setting.value)
         end
     end
+    Logger:Log(Logger.LogLevels.verbose, msg)
 end
 
 ------------------------------------------------

@@ -6,17 +6,17 @@ local HomePage = {}
 function HomePage:GetOptions()
     return {
         name = "Home",
-        type = 'group',
+        type = "group",
         order = 10,
         args = {
             welcomeHeader = {
                 name = "Introduction",
-                type = 'header',
+                type = "header",
                 order = 1
             }, 
             welcomeImage = {
                 name = "",
-                type = 'description',
+                type = "description",
                 image = 'Interface\\AddOns\\SituationalAudioManager\\Media\\SAM.tga',
                 imageWidth = 200,
                 imageHeight = 200,
@@ -31,7 +31,7 @@ function HomePage:GetOptions()
                 .."Multiple profiles can be set up to allow you to switch between various presets and can be changed easily with the slash command below:\n\nSlash Command: /SAM Profile <profile name>.\n\n"
                 .."If you have any requests for further features or more overrides please let me know and I'll do my best to implement them!\n\n"
                 .."Thanks and enjoy!",
-                type = 'description',
+                type = "description",
                 order = 3
             }
         }

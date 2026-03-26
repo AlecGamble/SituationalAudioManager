@@ -8,9 +8,6 @@ local defaultProfileSettings =
     profile = 
     {
         name = "Default",
-        defaultVolumeSettings = { initialized = false },
-        overrides = {},
-        enabledContexts = {},
         fixCutsceneBug = false,
         blendBetweenAudioProfiles = true,
         disableTalkingHead = false
@@ -21,14 +18,13 @@ function SituationalAudioManager:OnInitialize()
     -- setup app
     self.db = LibStub("AceDB-3.0"):New("SituationalAudioManager_Database", defaultProfileSettings, true)
     self:EnsureDBIntegrity()
+    self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
     SituationalLogger_Database = SituationalLogger_Database or {}
     Logger:Initialise(SituationalLogger_Database)
 
     -- register chat commands
     SituationalAudioManager:RegisterChatCommand("sam", "SlashCommand")
     SituationalAudioManager:RegisterChatCommand("situationalaudiomanager", "SlashCommand")
-
-    self.SettingsEngine:Apply()
 end
 
 function SituationalAudioManager:OnEnable()
@@ -44,17 +40,29 @@ function SituationalAudioManager:OnDisable()
 end
 
 function SituationalAudioManager:OnPlayerEnteredWorld()
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from PLAYER_ENTERING_WORLD")
-    self.SettingsEngine:Apply()
+    self:RefreshSettings("PLAYER_ENTERING_WORLD")
 end
 
 function SituationalAudioManager:OnZoneChangedNewArea()
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from ZONE_CHANGED_NEW_AREA")
-    self.SettingsEngine:Apply()
+    self:RefreshSettings("ZONE_CHANGED_NEW_AREA")
 end
 
 function SituationalAudioManager:OnZoneChangedIndoors()
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from ZONE_CHANGED_INDOORS")
+    self:RefreshSettings("ZONE_CHANGED_INDOORS")
+end
+
+function SituationalAudioManager:OnProfileChanged()
+    self:EnsureDBIntegrity()
+
+    LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
+    self.Config:Rebuild()
+    self:RefreshSettings("ON_PROFILE_CHANGED")
+end
+
+function SituationalAudioManager:RefreshSettings(source)
+    if source then
+        Logger:Log(Logger.LogLevels.verbose, "Update triggered from %s", tostring(source))
+    end
     self.SettingsEngine:Apply()
 end
 
@@ -80,8 +88,7 @@ function SituationalAudioManager:SlashCommand(msg)
     end
 
     if #args == 0 then
-        -- self.Config:Show()
-        Settings.OpenToCategory(self.optionsFrame.name)
+        self.Config:Show()
         return nil
     end
 
@@ -108,6 +115,8 @@ function SituationalAudioManager:SlashCommand(msg)
 end
 
 function SituationalAudioManager:EnsureDBIntegrity()
+    local initialisationMessage = nil
+
     -- Ensure root context table exists
     local profileRecord = self.db.profile
     profileRecord.contexts = profileRecord.contexts or {}
@@ -127,7 +136,12 @@ function SituationalAudioManager:EnsureDBIntegrity()
 
                 -- If override is missing, default to false
                 if overrideRecord.enabled == nil or overrideRecord.value == nil then
-                    Logger:Log(Logger.LogLevels.debug, "Initialising override %s.%s", contextKey, overrideKey)
+                    if not initialisationMessage then
+                        initialisationMessage = string.format("Initialising overrides for profile")
+                    end
+                    if Logger.LogLevel == Logger.LogLevels.verbose then
+                        initialisationMessage = initialisationMessage..string.format("\nInitialising override %s.%s", contextKey, overrideKey)
+                    end
                     overrideRecord.enabled = false
                     overrideRecord.value = tonumber(GetCVar(overrideDef.CVar))
                 end
@@ -135,5 +149,8 @@ function SituationalAudioManager:EnsureDBIntegrity()
                 Logger:Error("[SituationalAudioManager:EnsureDBIntegrity] Could not find override definition in registry for %s.", overrideKey)
             end
         end
+    end
+    if initialisationMessage then
+        Logger:Log(Logger.LogLevels.debug, initialisationMessage)
     end
 end

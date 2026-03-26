@@ -16,22 +16,30 @@ local CutsceneContext =
 }
 
 function CutsceneContext:OnEnable()
-    SituationalAudioManager:RegisterEvent("CINEMATIC_START", function() self:OnCutsceneStart() end)
-    SituationalAudioManager:RegisterEvent("PLAY_MOVIE", function() self:OnCutsceneStart() end)
+    SituationalAudioManager:RegisterEvent("CINEMATIC_START", function() self:OnCinematicStart() end)
+    SituationalAudioManager:RegisterEvent("PLAY_MOVIE", function() self:OnMovieStart() end)
     SituationalAudioManager:RegisterEvent("CINEMATIC_STOP", function() self:OnCutsceneEnd() end)
     SituationalAudioManager:RegisterEvent("STOP_MOVIE", function() self:OnCutsceneEnd() end)
 end
 
-function CutsceneContext:OnCutsceneStart()
+function CutsceneContext:OnCinematicStart()
     self.isInCutscene = true
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from CINEMATIC_START or PLAY_MOVIE")
-    SituationalAudioManager.SettingsEngine:Apply()
+    SituationalAudioManager:RefreshSettings("CINEMATIC_START")
 end
 
-function CutsceneContext:OnCutsceneEnd()
+function CutsceneContext:OnMovieStart()
+    self.isInCutscene = true
+    SituationalAudioManager:RefreshSettings("PLAY_MOVIE")
+end
+
+function CutsceneContext:OnCinematicEnd()
     self.isInCutscene = false
-    Logger:Log(Logger.LogLevels.verbose, "Update triggered from CINEMATIC_STOP or STOP_MOVIE")
-    SituationalAudioManager.SettingsEngine:Apply()
+    SituationalAudioManager:RefreshSettings("CINEMATIC_STOP")
+end
+
+function CutsceneContext:OnMovieEnd()
+    self.isInCutscene = false
+    SituationalAudioManager:RefreshSettings("STOP_MOVIE")
 end
 
 function CutsceneContext:IsActive()
