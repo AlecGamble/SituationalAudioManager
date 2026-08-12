@@ -1,4 +1,4 @@
-## Interface: 120001, 120005
+## Interface: 120001, 120005, 120100
 ## Title: Situational Audio Manager
 ## IconTexture: Interface\AddOns\SituationalAudioManager\Media\Icon.tga
 ## Author: Firebugs
