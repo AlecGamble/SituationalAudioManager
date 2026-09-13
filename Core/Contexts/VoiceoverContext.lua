@@ -7,7 +7,7 @@ local VoiceoverContext =
     name = "Talking Heads",
     key = "talking_heads",
     menuOrder = 7,
-    priority = 13,
+    priority = 99,
     overrides = 
     {
         "MasterVolume",

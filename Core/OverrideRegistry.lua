@@ -44,7 +44,7 @@ SituationalAudioManager.OverrideRegistry =
     },
     AmbienceVolume = {
         Name = "Ambience",
-        CVar = "Sound_MasterVolume",
+        CVar = "Sound_AmbienceVolume",
         Control = 
         {
             Label = "Ambience",
